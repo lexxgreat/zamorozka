@@ -45,12 +45,13 @@
       color: #333;
       text-align: right;
     }
-    .buttons {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin: 12px 0;
-    }
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 12px 0;
+}
     .buttons button {
       padding: 12px;
       border: 2px solid #e0f0ff;
@@ -165,36 +166,41 @@
     <h1>ЗАМОРОЗКА</h1>
   </div>
 
-  <p class="subtitle">Заморозь деньги — сохрани цель</p>
+ <p class="subtitle">Заморозь деньги — сохрани цель</p>
 
- <label>Сумма (₽)</label>
-<div style="display: flex; justify-content: center;">
-  <input type="number" id="amount" min="100" placeholder="1000" value="1000" style="width: 180px; max-width: 100%;">
-</div>
-
-<label>Срок заморозки</label>
-
-<!-- Быстрые кнопки -->
-<div class="buttons" id="presetButtons">
-  <button data-hours="3">3 ч</button>
-  <button data-hours="6">6 ч</button>
-  <button data-hours="12">12 ч</button>
-  <button data-hours="24">1 д</button>
-  <button data-hours="72">3 д</button>
-  <button data-hours="168">7 д</button>
-</div>
-
-<!-- Стрелки + слайдер -->
-<div style="display: flex; align-items: center; gap: 10px; margin: 12px 0;">
-  <button class="arrow-btn" onclick="adjustTime(-1)">◀</button>
-  
-  <div style="flex: 1;">
-    <div class="slider-label">
-      <span>1 ч</span>
-      <span>7 д</span>
-    </div>
-    <input type="range" id="timeSlider" min="1" max="168" value="12" oninput="updateFromSlider()">
+<div style="text-align: center; margin: 20px 0;">
+  <div style="font-weight: bold; margin-bottom: 8px;">Сумма (₽)</div>
+  <div style="display: flex; justify-content: center;">
+    <input type="number" id="amount" min="100" placeholder="1000" value="1000" style="width: 180px; max-width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; background: white; color: #333; text-align: right;">
   </div>
+</div>
+
+<div style="text-align: center; margin: 20px 0;">
+  <div style="font-weight: bold; margin-bottom: 12px;">Срок заморозки</div>
+  
+  <!-- Быстрые кнопки -->
+  <div class="buttons" id="presetButtons" style="justify-content: center;">
+    <button data-hours="3">3 ч</button>
+    <button data-hours="6">6 ч</button>
+    <button data-hours="12">12 ч</button>
+    <button data-hours="24">1 д</button>
+    <button data-hours="72">3 д</button>
+    <button data-hours="168">7 д</button>
+  </div>
+
+  <!-- Стрелки + слайдер -->
+  <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 12px;">
+    <button class="arrow-btn" onclick="adjustTime(-1)">◀</button>
+    <div style="flex: 1; max-width: 300px;">
+      <div class="slider-label">
+        <span>1 ч</span>
+        <span>7 д</span>
+      </div>
+      <input type="range" id="timeSlider" min="1" max="168" value="12" oninput="updateFromSlider()">
+    </div>
+    <button class="arrow-btn" onclick="adjustTime(1)">▶</button>
+  </div>
+</div>
 
   <button class="arrow-btn" onclick="adjustTime(1)">▶</button>
 </div>
