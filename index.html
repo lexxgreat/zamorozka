@@ -47,8 +47,8 @@
       border: 2px solid #ddd;
       border-radius: 8px;
       font-size: 16px;
-      background: black;
-      color: white;
+      background: white; /* белый фон */
+      color: #333; /* тёмный текст */
       text-align: right;
     }
     .buttons {
@@ -65,6 +65,7 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
+      color: #003366;
     }
     .buttons button.selected {
       background: #cce5ff;
@@ -91,6 +92,7 @@
     .checkbox label {
       font-size: 14px;
       margin: 0;
+      color: #333;
     }
     #freezeBtn {
       width: 100%;
@@ -107,6 +109,20 @@
     #freezeBtn:disabled {
       background: #cccccc;
       cursor: not-allowed;
+    }
+    .robokassa-info {
+      margin-top: 20px;
+      padding: 12px;
+      background: #fafafa;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #666;
+      line-height: 1.4;
+    }
+    .robokassa-info strong {
+      color: #003366;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -140,6 +156,14 @@
   </div>
 
   <button id="freezeBtn" onclick="pay()" disabled>Заморозить</button>
+
+  <!-- Информация для Робокассы -->
+  <div class="robokassa-info">
+    <strong>Информация о сервисе:</strong><br>
+    Услуга по временному блокированию средств на карте пользователя для финансового самоконтроля.<br>
+    Стоимость услуги: 0 ₽. Услуга предоставляется бесплатно. Реализации товаров не происходит.<br>
+    Условия: средства временно блокируются на карте (pre-auth) и автоматически разблокируются через заданный срок (до 7 дней). Возврат средств не требуется — деньги не списываются с карты.
+  </div>
 
   <script>
     let selectedTime = null;
