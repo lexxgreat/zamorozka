@@ -3,32 +3,53 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ЛЁД</title>
+  <title>ЗАМОРОЗКА</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #f0f9ff;
+      background: white;
       color: #003366;
       margin: 0;
       padding: 20px;
-    }
-    .container {
       max-width: 500px;
       margin: 0 auto;
     }
-    h1 {
+    .header {
       text-align: center;
-      font-size: 28px;
-      margin-bottom: 8px;
+      margin-bottom: 20px;
     }
-    input, button {
+    .header img {
+      width: 32px;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: bold;
+      display: inline;
+      color: #003366;
+    }
+    p.subtitle {
+      font-size: 14px;
+      color: #666;
+      margin-top: 8px;
+    }
+    label {
+      display: block;
+      margin: 12px 0 6px;
+      font-size: 14px;
+      color: #333;
+    }
+    input[type="number"] {
       width: 100%;
       padding: 12px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
+      border: 2px solid #ddd;
       border-radius: 8px;
-      box-sizing: border-box;
+      font-size: 16px;
+      background: black;
+      color: white;
+      text-align: right;
     }
     .buttons {
       display: grid;
@@ -37,89 +58,139 @@
       margin: 12px 0;
     }
     .buttons button {
-      background: #e6f4ff;
-      border: 1px solid #b3daff;
+      padding: 12px;
+      border: 2px solid #e0f0ff;
+      border-radius: 8px;
+      background: #f0f9ff;
       font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .buttons button.selected {
+      background: #cce5ff;
+      border-color: #007bff;
+      color: #007bff;
+    }
+    .summary {
+      margin: 20px 0;
+      padding: 12px;
+      background: #f8f8f8;
+      border-radius: 8px;
+      display: none;
+    }
+    .checkbox {
+      display: flex;
+      align-items: center;
+      margin: 12px 0;
+    }
+    .checkbox input {
+      margin-right: 8px;
+      width: 18px;
+      height: 18px;
+    }
+    .checkbox label {
+      font-size: 14px;
+      margin: 0;
     }
     #freezeBtn {
-      background: #007bff;
+      width: 100%;
+      padding: 12px;
+      background: #66BB6A; /* светло-зелёная */
       color: white;
       border: none;
+      border-radius: 8px;
       font-size: 18px;
       font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
     }
     #freezeBtn:disabled {
       background: #cccccc;
-    }
-    .checkbox {
-      display: block;
-      margin: 12px 0;
+      cursor: not-allowed;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>❄️ ЗАМОРОЗКА</h1>
-    <p>Заморозь деньги — сохрани цель</p>
-
-    <label>Сумма (₽)</label>
-    <input type="number" id="amount" min="100" placeholder="1000" value="1000">
-
-    <label>Срок заморозки</label>
-    <div class="buttons">
-      <button onclick="set(3, 'h')">3 ч</button>
-      <button onclick="set(12, 'h')">12 ч</button>
-      <button onclick="set(1, 'd')">1 д</button>
-      <button onclick="set(3, 'd')">3 д</button>
-      <button onclick="set(7, 'd')">7 д</button>
-    </div>
-
-    <label class="checkbox">
-      <input type="checkbox" id="agreement" required>
-      Я понимаю: деньги будут <strong>заблокированы на моей карте</strong> и недоступны для траты до окончания срока.
-    </label>
-
-    <button id="freezeBtn" onclick="pay()" disabled>Заморозить</button>
+  <div class="header">
+    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgdmlld0JveD0iMCAwIDMyIDMyIj48cGF0aCBkPSJNMTYgMGMtNi42MzYgMC0xMiA1LjM2NC0xMiAxMmMwIDYuNjM2IDUuMzY0IDEyIDEyIDEyczEyLTUuMzY0IDEyLTEyYzAtNi42MzYtNS4zNjQtMTItMTItMTJ6bTAgNGMtMS4xMDUgMCAyLjIwOSAwIDAgMGgtOGMwIDAgMCAwIDAgMGwtNC00YzAgMCAwIDAgMCAwbC00IDRjMCAwIDAgMCAwIDBoLTRjMCAwIDAgMCAwIDB2NGMwIDAgMCAwIDAgMGg0YzAgMCAwIDAgMCAwbDQgNGMwIDAgMCAwIDAgMGw0LTQjMCAwIDAgMCAwIDBoNGMwIDAgMCAwIDAgMHYtNGMwIDAgMCAwIDAgMHoiIGZpbGw9IiMwMDczOTkiLz48L3N2Zz4=" alt="❄️">
+    <h1>ЗАМОРОЗКА</h1>
   </div>
 
-  <script>
-    let freezeUntil = null;
+  <p class="subtitle">Заморозь деньги — сохрани цель</p>
 
-    function set(value, unit) {
-      const now = new Date();
-      if (unit === 'h') now.setHours(now.getHours() + value);
-      if (unit === 'd') now.setDate(now.getDate() + value);
-      freezeUntil = now;
+  <label>Сумма (₽)</label>
+  <input type="number" id="amount" min="100" placeholder="1000" value="1000">
+
+  <label>Срок заморозки</label>
+  <div class="buttons">
+    <button onclick="selectTime(3, 'ч')">3 ч</button>
+    <button onclick="selectTime(12, 'ч')">12 ч</button>
+    <button onclick="selectTime(1, 'д')">1 д</button>
+    <button onclick="selectTime(3, 'д')">3 д</button>
+    <button onclick="selectTime(7, 'д')">7 д</button>
+  </div>
+
+  <div class="summary" id="summary">
+    Вы замораживаете <span id="sumDisplay">0</span> ₽ на <span id="timeDisplay">-</span>.
+  </div>
+
+  <div class="checkbox">
+    <input type="checkbox" id="agreement" required>
+    <label>Я понимаю: деньги будут заблокированы на моей карте и недоступны для траты до окончания срока.</label>
+  </div>
+
+  <button id="freezeBtn" onclick="pay()" disabled>Заморозить</button>
+
+  <script>
+    let selectedTime = null;
+    let selectedUnit = null;
+
+    function selectTime(value, unit) {
+      // Сброс всех кнопок
+      document.querySelectorAll('.buttons button').forEach(btn => btn.classList.remove('selected'));
+      // Добавляем класс selected к выбранной
+      event.target.classList.add('selected');
+      selectedTime = value;
+      selectedUnit = unit;
+      updateSummary();
       check();
     }
 
+    function updateSummary() {
+      const amount = document.getElementById('amount').value;
+      if (selectedTime && amount >= 100) {
+        document.getElementById('sumDisplay').textContent = amount;
+        document.getElementById('timeDisplay').textContent = `${selectedTime} ${selectedUnit}`;
+        document.getElementById('summary').style.display = 'block';
+      } else {
+        document.getElementById('summary').style.display = 'none';
+      }
+    }
+
     function check() {
-      const ok = document.getElementById('amount').value >= 100 && freezeUntil && document.getElementById('agreement').checked;
+      const ok = selectedTime && document.getElementById('amount').value >= 100 && document.getElementById('agreement').checked;
       document.getElementById('freezeBtn').disabled = !ok;
     }
 
-    document.getElementById('amount').oninput = check;
+    document.getElementById('amount').oninput = () => { updateSummary(); check(); };
     document.getElementById('agreement').onchange = check;
 
     function pay() {
       const amount = document.getElementById('amount').value;
-      const desc = `Заморозка до ${freezeUntil.toLocaleString('ru-RU')}`;
-      
+      const desc = `Заморозка на ${selectedTime} ${selectedUnit}`;
+
       // Форма отправки в Robokassa
       const form = document.createElement('form');
       form.method = 'POST';
       form.action = 'https://auth.robokassa.ru/Merchant/Index.aspx';
-      
+
       const fields = {
         MerchantLogin: 'YOUR_MERCHANT_LOGIN', // ← ЗАМЕНИ!
         OutSum: amount,
         Description: 'Обеспечительный холд. Разморозка: ' + desc,
         IsPreAuth: '1',
         Culture: 'ru',
-        Encoding: 'utf-8',
-        // Для тестов:
-        // InvId: Date.now(),
-        // SignatureValue: '...' (не нужна при IsPreAuth=1 в тестовом режиме)
+        Encoding: 'utf-8'
       };
 
       for (const [name, value] of Object.entries(fields)) {
