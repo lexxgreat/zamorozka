@@ -19,15 +19,9 @@
       text-align: center;
       margin-bottom: 20px;
     }
-    .header img {
-      width: 32px;
-      vertical-align: middle;
-      margin-right: 8px;
-    }
     h1 {
       font-size: 24px;
       font-weight: bold;
-      display: inline;
       color: #003366;
     }
     p.subtitle {
@@ -47,8 +41,8 @@
       border: 2px solid #ddd;
       border-radius: 8px;
       font-size: 16px;
-      background: white; /* белый фон */
-      color: #333; /* тёмный текст */
+      background: white;
+      color: #333;
       text-align: right;
     }
     .buttons {
@@ -64,7 +58,6 @@
       background: #f0f9ff;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
       color: #003366;
     }
     .buttons button.selected {
@@ -72,6 +65,33 @@
       border-color: #007bff;
       color: #007bff;
     }
+
+    .slider-container {
+      margin: 12px 0;
+    }
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #666;
+    }
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      -webkit-appearance: none;
+      background: #e0e0e0;
+      border-radius: 3px;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #007bff;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
     .summary {
       margin: 20px 0;
       padding: 12px;
@@ -97,7 +117,7 @@
     #freezeBtn {
       width: 100%;
       padding: 12px;
-      background: #66BB6A; /* светло-зелёная */
+      background: #66BB6A;
       color: white;
       border: none;
       border-radius: 8px;
@@ -110,25 +130,20 @@
       background: #cccccc;
       cursor: not-allowed;
     }
-    .robokassa-info {
+    .footer {
       margin-top: 20px;
-      padding: 12px;
-      background: #fafafa;
-      border: 1px solid #eee;
-      border-radius: 8px;
+      text-align: center;
       font-size: 12px;
       color: #666;
-      line-height: 1.4;
     }
-    .robokassa-info strong {
-      color: #003366;
-      font-weight: bold;
+    .footer a {
+      color: #007bff;
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
   <div class="header">
-    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgdmlld0JveD0iMCAwIDMyIDMyIj48cGF0aCBkPSJNMTYgMGMtNi42MzYgMC0xMiA1LjM2NC0xMiAxMmMwIDYuNjM2IDUuMzY0IDEyIDEyIDEyczEyLTUuMzY0IDEyLTEyYzAtNi42MzYtNS4zNjQtMTItMTItMTJ6bTAgNGMtMS4xMDUgMCAyLjIwOSAwIDAgMGgtOGMwIDAgMCAwIDAgMGwtNC00YzAgMCAwIDAgMCAwbC00IDRjMCAwIDAgMCAwIDBoLTRjMCAwIDAgMCAwIDB2NGMwIDAgMCAwIDAgMGg0YzAgMCAwIDAgMCAwbDQgNGMwIDAgMCAwIDAgMGw0LTQjMCAwIDAgMCAwIDBoNGMwIDAgMCAwIDAgMHYtNGMwIDAgMCAwIDAgMHoiIGZpbGw9IiMwMDczOTkiLz48L3N2Zz4=" alt="❄️">
     <h1>ЗАМОРОЗКА</h1>
   </div>
 
@@ -139,15 +154,24 @@
 
   <label>Срок заморозки</label>
   <div class="buttons">
-    <button onclick="selectTime(3, 'ч')">3 ч</button>
-    <button onclick="selectTime(12, 'ч')">12 ч</button>
-    <button onclick="selectTime(1, 'д')">1 д</button>
-    <button onclick="selectTime(3, 'д')">3 д</button>
-    <button onclick="selectTime(7, 'д')">7 д</button>
+    <button onclick="selectPreset(3)">3 ч</button>
+    <button onclick="selectPreset(6)">6 ч</button>
+    <button onclick="selectPreset(12)">12 ч</button>
+    <button onclick="selectPreset(24)">24 ч</button>
+    <button onclick="selectPreset(48)">2 д</button>
+    <button onclick="selectPreset(168)">7 д</button>
+  </div>
+
+  <div class="slider-container">
+    <div class="slider-label">
+      <span>1 ч</span>
+      <span id="sliderValue">12 ч</span>
+    </div>
+    <input type="range" id="timeSlider" min="1" max="168" value="12" oninput="updateFromSlider()">
   </div>
 
   <div class="summary" id="summary">
-    Вы замораживаете <span id="sumDisplay">0</span> ₽ на <span id="timeDisplay">-</span>.
+    Вы замораживаете <strong id="sumDisplay">1000</strong> ₽ на <strong id="timeDisplay">12 ч</strong>.
   </div>
 
   <div class="checkbox">
@@ -157,7 +181,7 @@
 
   <button id="freezeBtn" onclick="pay()" disabled>Заморозить</button>
 
-  <!-- Информация для Робокассы -->
+<!-- Информация для Робокассы -->
   <div class="robokassa-info">
     <strong>Информация о сервисе:</strong><br>
     Услуга по временному блокированию средств на карте пользователя для финансового самоконтроля.<br>
@@ -165,69 +189,54 @@
     Условия: средства временно блокируются на карте (pre-auth) и автоматически разблокируются через заданный срок (до 7 дней). Возврат средств не требуется — деньги не списываются с карты.
   </div>
 
-  <script>
-    let selectedTime = null;
-    let selectedUnit = null;
+  <div class="footer">
+    <a href="/oferta.html" target="_blank">Публичная оферта</a>
+  </div>
 
-    function selectTime(value, unit) {
-      // Сброс всех кнопок
-      document.querySelectorAll('.buttons button').forEach(btn => btn.classList.remove('selected'));
-      // Добавляем класс selected к выбранной
-      event.target.classList.add('selected');
-      selectedTime = value;
-      selectedUnit = unit;
+  <script>
+    let selectedHours = 12;
+
+    function selectPreset(hours) {
+      selectedHours = hours;
+      document.getElementById('timeSlider').value = hours;
+      document.getElementById('sliderValue').textContent = formatTime(hours);
       updateSummary();
       check();
     }
 
+    function updateFromSlider() {
+      const hours = parseInt(document.getElementById('timeSlider').value);
+      selectedHours = hours;
+      document.getElementById('sliderValue').textContent = formatTime(hours);
+      updateSummary();
+      check();
+    }
+
+    function formatTime(hours) {
+      if (hours < 24) return `${hours} ч`;
+      const days = Math.floor(hours / 24);
+      const remainder = hours % 24;
+      if (remainder === 0) return `${days} д`;
+      return `${days} д ${remainder} ч`;
+    }
+
     function updateSummary() {
       const amount = document.getElementById('amount').value;
-      if (selectedTime && amount >= 100) {
-        document.getElementById('sumDisplay').textContent = amount;
-        document.getElementById('timeDisplay').textContent = `${selectedTime} ${selectedUnit}`;
-        document.getElementById('summary').style.display = 'block';
-      } else {
-        document.getElementById('summary').style.display = 'none';
-      }
+      document.getElementById('sumDisplay').textContent = amount;
+      document.getElementById('timeDisplay').textContent = formatTime(selectedHours);
+      document.getElementById('summary').style.display = 'block';
     }
 
     function check() {
-      const ok = selectedTime && document.getElementById('amount').value >= 100 && document.getElementById('agreement').checked;
+      const ok = selectedHours >= 1 && document.getElementById('amount').value >= 100 && document.getElementById('agreement').checked;
       document.getElementById('freezeBtn').disabled = !ok;
     }
 
     document.getElementById('amount').oninput = () => { updateSummary(); check(); };
     document.getElementById('agreement').onchange = check;
 
-    function pay() {
-      const amount = document.getElementById('amount').value;
-      const desc = `Заморозка на ${selectedTime} ${selectedUnit}`;
-
-      // Форма отправки в Robokassa
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = 'https://auth.robokassa.ru/Merchant/Index.aspx';
-
-      const fields = {
-        MerchantLogin: 'YOUR_MERCHANT_LOGIN', // ← ЗАМЕНИ!
-        OutSum: amount,
-        Description: 'Обеспечительный холд. Разморозка: ' + desc,
-        IsPreAuth: '1',
-        Culture: 'ru',
-        Encoding: 'utf-8'
-      };
-
-      for (const [name, value] of Object.entries(fields)) {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = name;
-        input.value = value;
-        form.appendChild(input);
-      }
-
-      document.body.appendChild(form);
-      form.submit();
-    }
+    // Инициализация
+    updateSummary();
   </script>
 </body>
 </html>
