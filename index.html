@@ -93,13 +93,13 @@
       cursor: pointer;
     }
 
-    .summary {
-      margin: 20px 0;
-      padding: 12px;
-      background: #f8f8f8;
-      border-radius: 8px;
-      display: none;
-    }
+.summary {
+  margin: 20px 0;
+  padding: 12px;
+  background: #f8f8f8;
+  border-radius: 8px;
+  display: none;
+}
     .checkbox {
       display: flex;
       align-items: center;
@@ -220,40 +220,37 @@
     <a href="/oferta.html" target="_blank">Публичная оферта</a>
   </div>
 
- <script>
+<script>
+  // Инициализация
   let selectedHours = 12;
 
-  // Подсветка кнопок
+  // Подсветка кнопки и установка времени
   function selectPreset(hours) {
     selectedHours = hours;
     document.getElementById('timeSlider').value = hours;
-    document.getElementById('sliderValue').textContent = formatTime(hours);
-    
-    // Сброс подсветки
+    updateSummary();
+    check();
+
+    // Снимаем подсветку со всех
     document.querySelectorAll('#presetButtons button').forEach(btn => {
       btn.classList.remove('selected');
     });
-    // Подсветка текущей кнопки
-    const activeBtn = document.querySelector(`#presetButtons button[data-hours="${hours}"]`);
-    if (activeBtn) activeBtn.classList.add('selected');
-    
-    updateSummary();
-    check();
+    // Подсвечиваем нужную
+    const btn = document.querySelector(`#presetButtons button[data-hours="${hours}"]`);
+    if (btn) btn.classList.add('selected');
   }
 
   // Обновление из слайдера
   function updateFromSlider() {
     const hours = parseInt(document.getElementById('timeSlider').value);
     selectedHours = hours;
-    document.getElementById('sliderValue').textContent = formatTime(hours);
-    
-    // Снимаем подсветку, если выбрали не через кнопку
+    updateSummary();
+    check();
+
+    // Снимаем подсветку — пользователь выбрал не через кнопку
     document.querySelectorAll('#presetButtons button').forEach(btn => {
       btn.classList.remove('selected');
     });
-    
-    updateSummary();
-    check();
   }
 
   // Стрелки
@@ -261,10 +258,10 @@
     let newHours = selectedHours + delta;
     if (newHours < 1) newHours = 1;
     if (newHours > 168) newHours = 168;
-    selectPreset(newHours); // используем общую логику
+    selectPreset(newHours);
   }
 
-  // Формат времени
+  // Формат времени для отображения
   function formatTime(hours) {
     if (hours < 24) return `${hours} ч`;
     const days = Math.floor(hours / 24);
@@ -273,21 +270,22 @@
     return `${days} д ${remainder} ч`;
   }
 
-  // Обновление итога
+  // Обновление блока "Вы замораживаете..."
   function updateSummary() {
-    const amount = document.getElementById('amount').value;
+    const amount = document.getElementById('amount').value || 0;
     document.getElementById('sumDisplay').textContent = amount;
     document.getElementById('timeDisplay').textContent = formatTime(selectedHours);
     document.getElementById('summary').style.display = 'block';
   }
 
-  // Проверка активности кнопки
+  // Проверка активности кнопки "Заморозить"
   function check() {
-    const ok = selectedHours >= 1 && document.getElementById('amount').value >= 100 && document.getElementById('agreement').checked;
-    document.getElementById('freezeBtn').disabled = !ok;
+    const amountOk = parseInt(document.getElementById('amount').value) >= 100;
+    const agreementOk = document.getElementById('agreement').checked;
+    document.getElementById('freezeBtn').disabled = !(amountOk && agreementOk);
   }
 
-  // Привязка событий к кнопкам
+  // Привязка кнопок
   document.querySelectorAll('#presetButtons button').forEach(btn => {
     btn.addEventListener('click', () => {
       const hours = parseInt(btn.getAttribute('data-hours'));
@@ -295,12 +293,16 @@
     });
   });
 
-  // Обработчики ввода
-  document.getElementById('amount').oninput = () => { updateSummary(); check(); };
-  document.getElementById('agreement').onchange = check;
+  // Обработчики изменений
+  document.getElementById('amount').addEventListener('input', () => {
+    updateSummary();
+    check();
+  });
+  document.getElementById('agreement').addEventListener('change', check);
 
-  // Инициализация
+  // Инициализация при загрузке
   updateSummary();
 </script>
+  
 </body>
 </html>
