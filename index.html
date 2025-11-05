@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ЛЁД</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0f9ff;
+      color: #003366;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 12px 0;
+    }
+    .buttons button {
+      background: #e6f4ff;
+      border: 1px solid #b3daff;
+      font-weight: 600;
+    }
+    #freezeBtn {
+      background: #007bff;
+      color: white;
+      border: none;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    #freezeBtn:disabled {
+      background: #cccccc;
+    }
+    .checkbox {
+      display: block;
+      margin: 12px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>❄️ ЗАМОРОЗКА</h1>
+    <p>Заморозь деньги — сохрани цель</p>
+
+    <label>Сумма (₽)</label>
+    <input type="number" id="amount" min="100" placeholder="1000" value="1000">
+
+    <label>Срок заморозки</label>
+    <div class="buttons">
+      <button onclick="set(3, 'h')">3 ч</button>
+      <button onclick="set(12, 'h')">12 ч</button>
+      <button onclick="set(1, 'd')">1 д</button>
+      <button onclick="set(3, 'd')">3 д</button>
+      <button onclick="set(7, 'd')">7 д</button>
+    </div>
+
+    <label class="checkbox">
+      <input type="checkbox" id="agreement" required>
+      Я понимаю: деньги будут <strong>заблокированы на моей карте</strong> и недоступны для траты до окончания срока.
+    </label>
+
+    <button id="freezeBtn" onclick="pay()" disabled>Заморозить</button>
+  </div>
+
+  <script>
+    let freezeUntil = null;
+
+    function set(value, unit) {
+      const now = new Date();
+      if (unit === 'h') now.setHours(now.getHours() + value);
+      if (unit === 'd') now.setDate(now.getDate() + value);
+      freezeUntil = now;
+      check();
+    }
+
+    function check() {
+      const ok = document.getElementById('amount').value >= 100 && freezeUntil && document.getElementById('agreement').checked;
+      document.getElementById('freezeBtn').disabled = !ok;
+    }
+
+    document.getElementById('amount').oninput = check;
+    document.getElementById('agreement').onchange = check;
+
+    function pay() {
+      const amount = document.getElementById('amount').value;
+      const desc = `Заморозка до ${freezeUntil.toLocaleString('ru-RU')}`;
+      
+      // Форма отправки в Robokassa
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = 'https://auth.robokassa.ru/Merchant/Index.aspx';
+      
+      const fields = {
+        MerchantLogin: 'YOUR_MERCHANT_LOGIN', // ← ЗАМЕНИ!
+        OutSum: amount,
+        Description: 'Обеспечительный холд. Разморозка: ' + desc,
+        IsPreAuth: '1',
+        Culture: 'ru',
+        Encoding: 'utf-8',
+        // Для тестов:
+        // InvId: Date.now(),
+        // SignatureValue: '...' (не нужна при IsPreAuth=1 в тестовом режиме)
+      };
+
+      for (const [name, value] of Object.entries(fields)) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+      }
+
+      document.body.appendChild(form);
+      form.submit();
+    }
+  </script>
+</body>
+</html>
